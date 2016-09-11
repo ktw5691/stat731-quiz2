@@ -1,0 +1,287 @@
+---
+title: "Quiz 2"
+author: "Kenneth Tyler Wilcox"
+date: "September 10, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+## Exercise 1:##
+
+Consider a discrete random variable $Y \sim \text{Hypergeometric}(S = 15, F = 10, n = 5)$
+with success population size $S$, failure population size $F$, and sample size $n$.
+
+1. Use `R` to simulate 50 random variates from $Y$ and then generate the plot of
+the approximate pmf of Y.
+
+```{r}
+library(pacman)
+p_load(tidyverse, scales)
+set.seed(434109660L)
+s = 15L
+f = 10L
+n = 50L
+y = rhyper(nn = 50L, s, f, 5L)
+y = tibble(y = y)
+y %>%
+  ggplot() +
+  geom_bar(aes(x = y, y = ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+  ggtitle("Empirical Probability of Successes") +
+  theme_minimal()
+```
+
+2. Consider the set $\mathcal{X} = \{0, 1, 2, ..., n\}$. For each element of
+$\mathcal{X}$, calculate $Pr[X = x]$ using $\text{Binomial}(n, \frac{S}{S + F})$
+and then $\text{Hypergeometric}(S = 15, F = 10, n = 5)$. Tabulate the
+results in a two-column table and compute the vector of approximation error.
+
+```{r}
+bin_approx_hg = function(x, s, f, n, digits_ = 4L) {
+  xbin    = dbinom(x, size = n, prob = s / (s + f))
+  xhyp    = dhyper(x, s, f, n)
+  diff    = xhyp - xbin
+  results = tibble(x = x, px_hypergeom = xhyp, px_binom = xbin,
+                   error = diff)
+  return(
+    knitr::kable(
+      results, digits = digits_,
+      col.names = c("X", "Hypergeometric Pr[X = x]",
+                    "Binomial Pr[X = x]", "Approximation Error"),
+      caption = paste(
+        "Binomial Approximation of Hypergeometric Distribution, S =",
+        s, ", F =", f, ", n =", n)))
+  
+}
+```
+
+```{r}
+x = seq(0L, 5L, by = 1L)
+bin_approx_hg(x, s = 15L, f = 10L, n = 5L)
+```
+
+3. Consider the set $\mathcal{X} = \{0, 1, 2, ..., n\}$. For each element of
+$\mathcal{X}$, calculate $Pr[X = x]$ using $\text{Binomial}(n, \frac{S}{S + F})$
+and then $\text{Hypergeometric}(S = 150, F = 100, n = 5)$. Tabulate the
+results in a two-column table and compute the vector of approximation error.
+
+```{r}
+bin_approx_hg(x, s = 150L, f = 100L, n = 5L)
+```
+
+4. Consider the set $\mathcal{X} = \{0, 1, 2, ..., n\}$. For each element of
+$\mathcal{X}$, calculate $Pr[X = x]$ using $\text{Binomial}(n, \frac{S}{S + F})$
+and then $\text{Hypergeometric}(S = 1500, F = 1000, n = 5)$. Tabulate the
+results in a two-column table and compute the vector of approximation error.
+
+```{r}
+bin_approx_hg(x, s = 1500L, f = 1000L, n = 5L)
+```
+
+5. Comment clearly on how the ratio $\frac{n}{S + F}$ is affecting the
+approximation. Explain in your own words what it means and why it makes sense.
+
+The binomial approximation to the hypergeometric distribution becomes
+increasingly close as the hypergeometric population sizes of $F$ and $S$ grow
+larger. As $\frac{n}{S + F}$ tends toward 0, the approximation error approaches
+0. This is reasonably as the impact of sampling with replacement using the
+binomial distribution is negligible when approximating a hypergeometric
+distribution where $\frac{n}{S + F}$ is small since their is little difference
+between sampling with replacement from such a large population and sampling
+without replacement.
+
+## Exercise 2:##
+
+4. Simulate 10000 variates from the joint distribution of $X$ and $Y$ (Hint: use
+the fact that $X$ is discrete uniform and $Y$ is simply the absolute value of
+$X$).
+
+```{r}
+n = 10000L
+x = sample(x = c(-2L, -1L, 1L, 2L), size = n, replace = TRUE)
+y = abs(x)
+```
+
+5. Compute $\widehat{\rho}_{XY}(X, Y)$ based on your generated sample.
+
+```{r}
+round(cor(x, y), 4L)
+```
+
+6. Using the command `cor.test()` on your generated sample, what do you
+conclude?
+
+```{r}
+cor.test(x, y)
+```
+
+We can clearly see that the empirical correlation of $X$ and $Y$ is not
+significantly different than 0. Therefore, we can conclude that the samples from
+$X$ and $Y$ are not statistically significantly correlated.
+
+##Exercise 3:##
+
+Use the code provided for the demonstration of the law of large numbers to show
+that if $X_1, X_2, ..., X_n$ is an iid sample from a distribution with finite
+mean $\mu$ and finite variance $\sigma^2$, then the law of large numbers applies
+to the sample variance in relation to the population variance
+$$\frac{1}{n}\sum_{i = 1} ^ n (X_i - \bar{X}_n) ^ 2 \stackrel{p}{\to} 
+\mathbb{E}[(X - \mu) ^ 2] = \sigma^2$$
+
+1. Your first demonstration must be based on the Poisson distribution.
+
+Let $Y_i \sim \text{Poisson}(\lambda)$ where $\lambda = \sigma^2 = 5$
+
+```{r}
+p_load(latex2exp)
+n         = seq(2L, 1000L, by = 1L)
+m         = length(n)
+epsilon   = 0.01
+prop_good = numeric(m)
+for (i in 1L:m) {
+  y = rpois(n[i], lambda = 5L)
+  s2y = var(y)
+  prop_good[i] = sum(abs(s2y - 2.0) > epsilon) / n[i]
+}
+prob_y = tibble(n = n, prob = prop_good)
+prob_y %>%
+  ggplot() +
+  geom_path(aes(x = n, y = prob)) +
+  scale_y_continuous(limits = c(0.0, 1.0)) +
+  xlab(TeX("$n$")) +
+  ylab(TeX("$\\lim_{n \\rightarrow \\infty} Pr\\lbrack |s ^ 2 - \\sigma ^ 2| > \\epsilon \\rbrack$")) +
+  theme_minimal()
+```
+
+It is clear that the sample variance converges in probability to $\sigma ^ 2$.
+
+2. Your second demonstration must be based on the geometric distribution.
+
+Let $Y_i \sim \text{Geometric}(\theta)$ where $\theta = 0.5$ where
+$\sigma ^ 2 = 4$.
+
+```{r}
+n         = seq(2L, 1000L, by = 1L)
+m         = as.integer(length(n))
+epsilon   = 0.01
+prop_good = numeric(m)
+for (i in 1L:m) {
+  y = rgeom(n[i], prob = 0.8)
+  s2y = var(y)
+  prop_good[i] = sum(abs(s2y - 4.0) > epsilon) / n[i]
+}
+prob_y = tibble(n = n, prob = prop_good)
+prob_y %>%
+  ggplot() +
+  geom_path(aes(x = n, y = prob)) +
+  scale_y_continuous(limits = c(0.0, 1.0)) +
+  xlab(TeX("$n$")) +
+  ylab(TeX("$\\lim_{n \\rightarrow \\infty} Pr\\lbrack |s ^ 2 - \\sigma ^ 2| > \\epsilon \\rbrack$")) +
+  theme_minimal()
+```
+
+It is clear that the sample variance converges in probability to $\sigma ^ 2$.
+
+##Exercise 4:##
+
+Let $X_1, X_2, ..., X_n$ be an iid sample from a Bernoulli distribution with
+probability of success $\theta$. Demonstrate computationally that
+$$\frac{1}{n} \sum_{i = 1} ^ n X_i \stackrel{p}{\to} \mathbb{E}[X] = \theta \text{ when } n \to \infty$$
+
+```{r}
+n         = seq(1L, 10000L, by = 10L)
+m         = as.integer(length(n))
+mean_y    = numeric(m)
+for (i in 1L:m) {
+  y = rbinom(n[i], size = 1L, prob = 0.5)
+  mean_y[i] = mean(y)
+}
+ybar = tibble(n = n, mean = mean_y)
+ybar %>%
+  ggplot() +
+  geom_path(aes(x = n, y = mean)) +
+  geom_abline(slope = 0, intercept = 0.5) +
+  scale_y_continuous(limits = c(0.0, 1.0)) +
+  xlab(TeX("$n$")) +
+  ylab(TeX("$\\bar{X}")) +
+  theme_minimal()
+```
+
+##Exercise 5:##
+
+The Rademacher distribution is a very important distribution in the study of the
+generalization error in statistical learning theory. If $X \sim \text{Rademacher}(\cdot)$,
+then the range of $X$ is $\mathcal{X} = \{-1, 1\}$ and the pmf of $X$ is
+$$p_X(x) = \begin{cases}
+             \frac{1}{2}, & x = -1 \\
+             \frac{1}{2}, & x = 1 \\
+             0,           & \text{otherwise}
+           \end{cases}$$
+
+1. Plot the pmf of the Rademacher distribution.
+
+```{r}
+x  = c(-1L, 1L)
+px = c(0.5, 0.5)
+rad_pmf = tibble(x = x, px = px)
+rad_pmf %>%
+  ggplot() +
+  geom_linerange(aes(x = x, y = px, ymin = 0.0, ymax = px)) +
+  scale_y_continuous(limits = c(0.0, 1.0)) +
+  theme_minimal()
+```
+
+3. Write a piece of `R` code to simulate $n$ variates from the above Rademacher
+distribution and provide numerical estimates of the variance and the entropy.
+
+```{r}
+n = 10000L
+rradem = function(n = 1L) {
+  x = sample(x = c(-1L, 1L), size = n, replace = TRUE, prob = c(0.5, 0.5))
+  return(x)
+}
+
+dradem = function(x) {
+  px = if_else(x == -1L, true = 0.5, false = 0.5)
+  return(px)
+}
+
+x     = rradem(n)
+var_x = var(x)
+h_x   = -mean(log(dradem(x)))
+```
+
+We note that with $n = `r n`$ random draws from `rradem()`, we obtain an
+empirical sample variance $s^2 = `r sprintf("%.4f", var_x)`$ and an empirical
+sample entropy of $\hat{\mathbb{H}[X]} = `r sprintf("%.4f", h_x)`$ which are
+both consistent with the theoretical values of 1 and $log(2)$, respectively.
+
+4. Write a piece of `R` code to demonstrate the following Van Zuijlen result, namely,
+that if $X_1, X_2, \ldots, X_n$ is an iid sample of Rademacher distributed
+random variables, then
+$$\lim_{n \to \infty} Pr\Bigg[ \Bigg|\frac{\sum_{i = 1} ^ n X_i}{\sqrt{n}}\Bigg| \le 1 \Bigg] \ge \frac{1}{2}$$.
+
+```{r}
+n         = seq(1L, 1000L, by = 1L)
+m         = as.integer(length(n))
+r         = 500L
+prop_good = numeric(m)
+for (i in 1L:m) {
+  x            = matrix(rradem(n[i] * r), ncol = r)
+  quantity     = apply(x, 2, sum) / sqrt(n[i])
+  prop_good[i] = sum(abs(quantity) <= 1.0) / r
+}
+prob_x = tibble(n = n, prob = prop_good)
+prob_x %>%
+  ggplot() +
+  geom_path(aes(x = n, y = prob)) +
+  geom_abline(slope = 0, intercept = 0.5) +
+  scale_y_continuous(limits = c(0.0, 1.0)) +
+  xlab(TeX("$n$")) +
+  ylab(TeX("$\\lim_{n \\rightarrow \\infty} Pr\\lbrack |\\frac{1}{\\sqrt{n}} \\sum_{i = 1} ^ n X_i| \\leq 1 \\rbrack$")) +
+  theme_minimal()
+```
