@@ -1,0 +1,198 @@
+---
+title: "STAT-731 Recitation 3"
+author: "K. Tyler Wilcox"
+date: "September 19, 2016"
+output:
+  beamer_presentation:
+    highlight: zenburn
+    incremental: false
+    theme: "metropolis"
+---
+
+Preliminaries
+========================================================
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+- Simulating Random Variables
+- Expected Value
+- Moments
+- Variance
+- Law of Large Numbers
+- Chebyshev's Theorem
+
+Discrete Random Variables: Bernoulli Distribution
+========================================================
+
+- Consider a random variable $X$, $\mathcal{X} = \{ 0, 1 \}$ with $Pr[X = 1] = \theta$
+- The probability mass function of $X$ is:
+$$f_X(x) = \theta ^ {x} (1 - \theta) ^ {1 - x}, 0 < \theta  < 1$$
+- We used this distribution when we considered a reasonable description of a coin flip
+
+Simulating from the Bernoulli Distribution
+========================================================
+
+- Let $\theta = \frac{3}{4}$
+- Generate $m = 100$ empirical replications from Ber($\theta$)
+
+```{r}
+set.seed(9192016L)
+m     = 100L
+n     = 1L
+theta = 0.75
+x     = rbinom(m, n, prob = theta)
+```
+
+***
+
+```{r, echo = FALSE, message = FALSE, fig.cap = "Bernoulli(3/4) PMF", fig.height = 4.5}
+library(pacman)
+p_load(tidyverse, scales)
+x = tibble(x = x) %>%
+  mutate(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+  ggtitle("Empirical Probability of X = 1") +
+  theme_minimal()
+```
+
+***
+
+- Let $\theta = \frac{1}{3}$
+
+```{r}
+theta = 1.0 / 3.0
+x = rbinom(m, n, prob = theta)
+```
+
+```{r, echo = FALSE, message = FALSE, fig.cap = "Bernoulli(1/3) PMF", fig.height = 4.5}
+x = tibble(x = x) %>%
+  mutate(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+  ggtitle("Empirical Probability of X = 1") +
+  theme_minimal()
+```
+
+Discrete Random Variables: Binomial Distribution
+========================================================
+
+- Consider $n$ iid Bernoulli random variables $X_1, \ldots, X_n$
+- The probability mass function of $X_1, \ldots, X_n$ is:
+$$f_X(x) = {n \choose x} \theta ^ {x} (1 - \theta) ^ {n - x}, x \ge 0, \theta > 0$$
+- Very common distribution with many applications
+
+Simulating the Binomial Distribution
+========================================================
+
+- Let $\theta = \frac{1}{3}$
+- Generate $m = 1000$ empirical replications from Bin($n = 3, \theta$)
+
+```{r}
+m     = 1000L
+n     = 3L
+theta = 1.0 / 3.0
+x = rbinom(m, n, prob = theta)
+```
+
+***
+
+- $n = 3$
+- Positively skewed
+
+```{r, echo = FALSE, message = FALSE, fig.cap = "Binomial(n = 3, 1/3) PMF", fig.height = 4.5}
+x = tibble(x = x) %>%
+  mutate(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+  ggtitle("Empirical Probability of X") +
+  theme_minimal()
+```
+
+Gaussian Approximation to Binomial Distribution
+========================================================
+
+- If $n$ is large, the Binomial distribution is relatively symmetric
+- From the de Moivre-Laplace Theorem:
+$$\text{Bin}\left( n, \theta \right) \stackrel{n}{\rightarrow} \text{N}\left(n \theta, n \theta (1 - \theta) \right)$$
+- Basis of proportion hypothesis test using $\text{N}(0, 1)$
+
+***
+
+- $n = 5$
+- Positively skewed
+
+```{r, echo = FALSE, message = FALSE, fig.cap = "Binomial(n = 5, 1/3) PMF", fig.height = 4.5}
+n     = 5L
+theta = 1.0 / 3.0
+x = rbinom(m, n, prob = theta)
+x = tibble(x = x) %>%
+  mutate(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+  ggtitle("Empirical Probability of X") +
+  theme_minimal()
+```
+
+***
+
+- More symmetric
+- Still skewed
+
+```{r, echo = FALSE, message = FALSE, fig.cap = "Binomial(n = 5, 1/3) PMF", fig.height = 4.5}
+n     = 10L
+theta = 1.0 / 3.0
+x = rbinom(m, n, prob = theta)
+x = tibble(x = x) %>%
+  mutate(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+  ggtitle("Empirical Probability of X") +
+  theme_minimal()
+```
+
+***
+
+- $n = 30$
+- Symmetric, approaching Gaussian distribution
+
+```{r, echo = FALSE, message = FALSE, fig.cap = "Binomial(n = 5, 1/3) PMF", fig.height = 4.5}
+n     = 30L
+theta = 1.0 / 3.0
+x = rbinom(m, n, prob = theta)
+x = tibble(x = x) %>%
+  mutate(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+  ggtitle("Empirical Probability of X") +
+  theme_minimal()
+```
+
+Wrapping Up
+========================================================
+
+- Probability Mass Functions
+- Probability Density Functions
+- Cumulative Distribution Functions
+- Approximation with Monte Carlo
+- Questions?
