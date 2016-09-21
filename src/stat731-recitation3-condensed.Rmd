@@ -9,18 +9,17 @@ output:
     theme: "metropolis"
 ---
 
-Preliminaries
+Overview
 ========================================================
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(cache = TRUE)
 ```
 
-- Moments
-    - Expected Value
-    - Variance
-- Law of Large Numbers
-- Chebyshev's Theorem
+- Expected Value
+- Variance
+- Expectation of Functions
+- Monte Carlo Approximation
 
 Expected Value: Discrete Random Variables
 ========================================================
@@ -270,7 +269,24 @@ x ^ 2 \cdot \frac{1}{\lambda} exp \{-\frac{x}{\lambda}\} dx \\
                 &= 2 \lambda ^ 2 - \lambda ^ 2 \\
                 &= \lambda ^ 2
 \end{align*}
-                
+
+***
+
+- Let $\lambda = 10$
+- $\mathbb{V}[X] = \lambda = 100$
+
+```{r}
+n = 10000L
+lambda = 10L
+x = numeric(n)
+for (i in seq(1L, n, by = 1L)) {
+  draw = rexp(n = 1L, rate = 1.0 / lambda)
+  x[i] = draw
+}
+var_ = sum((x - mean(x)) ^ 2) / (n - 1)
+```
+
+- Empirically, $\widehat{V}[X] = `r sprintf("%.4f", var_)`$
 
 Moments of Functions
 ========================================================
@@ -281,11 +297,84 @@ $\mathbb{V}[X] = \mathbb{E}[(X - \mathbb{E}[X]) ^ 2]$
 - $\mathbb{V}[X] = \mathbb{E}[g(X)]$ where $g(X) = (X - \mathbb{E}[X]) ^ 2$
 $$\mathbb{E}[g(X)] = \int\limits_{x \in \mathcal{X}} g(X) \cdot p_X(x) dx$$
 
+Review: Monte Carlo Approximation of Expectation
+========================================================
+
+- Remember approximating probabilities using a pdf?
+- $\mathbb{E}[g(X)] = \int_a ^ b g(x) f(x) dx$
+- $\mathbb{E}[g(X)] = \int_a ^ b g(x) p_X(x) dx$
+- Let $p_X(x) = \frac{1}{b - a}$
+- $X \sim \text{U}(a, b)$
+- Let $g(X) = (b - a) h(x)$
+- $\widehat{\mathbb{E}[X]} = \frac{1}{n} \sum_{i = 1} ^ n g(x_i)$
+
+Monte Carlo Approximation Example
+========================================================
+
+- Let's consider a simple pdf:
+$$f_{XY}(x, y) = \frac{1}{4} xy, 0 < x < 2, 0 < y < 2$$
+- What is $Pr[X > 1]$?
+
+```{r}
+n   = 1000000
+x   = runif(n, 0, 2)
+y   = runif(n, 0, 2)
+fxy = 0.25 * x * y
+gx  = (2 - 0) * (2 - 0) * fxy
+pr1 = sum(gx[which(x > 1)]) / n
+```
+
+- Our empirical estimate of $Pr[X > 1] = `r sprintf("%.4f", pr1)`$
+- Theoretically, $Pr[X > 1] = 0.75$
+
+Median
+========================================================
+
+- While the expected value is one measure of centrality, it is not the only one
+- Let $\tilde{X}$ be the median of $X$
+- $\tilde{X} = F_X ^ {-1} (0.5)$
+
+Median: Uniform Distribution
+========================================================
+
+- $X \in [0, \theta]$
+- $p_X(x) = \theta ^ {-1}$
+
+\begin{align*}
+  \int\limits_{x \in \mathcal{X}} p_X(x) dx       &= 0.5 \\
+  \int_0 ^ {\tilde{X}} \theta ^ {-1} dx           &= 0.5 \\
+  x \cdot \theta ^ {-1} \vert_0 ^ {\tilde{X}}     &= 0.5
+\end{align*}
+$$\tilde{X} = \frac{\theta}{2}$$
+
+***
+
+- Let $\theta = 10$
+- $\tilde{X} = F_X(0.5) = \frac{\theta}{2} = 5$
+
+```{r}
+n = 10000L
+theta = 10L
+x = numeric(n)
+for (i in seq(1L, n, by = 1L)) {
+  draw = runif(n = 1L, min = 0L, theta)
+  x[i] = draw
+}
+med = median(x)
+```
+
+- Empirically, $\tilde{X} = `r sprintf("%.4f", med)`$
+
 Wrapping Up
 ========================================================
 
-- Probability Mass Functions
-- Probability Density Functions
-- Cumulative Distribution Functions
-- Approximation with Monte Carlo
+- Expected Value
+- Variance
+- Expectation of Functions
+- Monte Carlo Approximation
 - Questions?
+- Next Recitation
+    - Simulating Random Variables
+    - Special Discrete Distributions
+    - Weak and Strong Law of Large Numbers
+    - Chebyshev's Theorem
