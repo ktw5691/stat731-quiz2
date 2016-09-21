@@ -9,14 +9,24 @@ output:
     theme: "metropolis"
 ---
 
-Preliminaries
-========================================================
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(cache = TRUE)
 ```
 
+Overview
+========================================================
+
 - Simulating Random Variables
+- Special Discrete Distributions
+- Law of Large Numbers
+- Chebyshev's Theorem
+
+Simulating Common Discrete Distributions
+========================================================
+
+- We've been doing this already
+- Very useful way to deeply understand distributions
+- Good way to simulate processes, models, and parameterizations
 
 Discrete Random Variables: Bernoulli Distribution
 ========================================================
