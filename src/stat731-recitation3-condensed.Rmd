@@ -70,10 +70,13 @@ Expected Value: Uniform Distribution
 
 - $X \in [0, \theta]$
 - $p_X(x) = \theta ^ {-1}$
-- $\mathbb{E}[X] = \int\limits_{x \in \mathcal{X}} x \cdot p_X(x) dx$
-- $\mathbb{E}[X] = \int\limits_{0} ^ {\theta} x \cdot \theta ^ {-1} dx$
-- $\mathbb{E}[X] = x ^ 2 \cdot (2 \theta) ^ {-1} \vert_0 ^ \theta$
-- $\mathbb{E}[X] = \frac{\theta}{2}$
+
+\begin{align*}
+  \mathbb{E}[X] &= \int\limits_{x \in \mathcal{X}} x \cdot p_X(x) dx \\
+  \mathbb{E}[X] &= \int\limits_{0} ^ {\theta} x \cdot \theta ^ {-1} dx \\
+  \mathbb{E}[X] &= x ^ 2 \cdot (2 \theta) ^ {-1} \vert_0 ^ \theta \\
+  \mathbb{E}[X] &= \frac{\theta}{2}
+\end{align*}
 
 ***
 
@@ -98,13 +101,14 @@ Expected Value: Exponential Distribution
 
 - $X \in \mathbb{R} ^ +$
 - $p_X(x) = \frac{1}{\lambda} exp \{-\frac{x}{\lambda}\}, \lambda > 0$
-
-- $\mathbb{E}[X] = \int\limits_{x \in \mathcal{X}} x \cdot p_X(x) dx$
-- $\mathbb{E}[X] = \underset{t \rightarrow \infty}{\lim} \int\limits_{0} ^ {t}
-x \cdot \frac{1}{\lambda} exp \{-\frac{x}{\lambda}\} dx$
-- $\mathbb{E}[X] = \underset{t \rightarrow \infty}{\lim} -x \cdot \exp\{ -\frac{x}{\lambda} \} \vert_0 ^ t + \int\limits_{0} ^ {t} \exp \{-\frac{x}{\lambda}\} dt$
-- $\mathbb{E}[X] = \underset{t \rightarrow \infty}{\lim} \int\limits_{0} ^ {t} \exp \{-\frac{x}{\lambda}\} dt$
-- $\mathbb{E}[X] = \lambda$
+\begin{align*}
+  \mathbb{E}[X] = \int\limits_{x \in \mathcal{X}} x \cdot p_X(x) dx \\
+  \mathbb{E}[X] = \underset{t \rightarrow \infty}{\lim} \int\limits_{0} ^ {t}
+x \cdot \frac{1}{\lambda} exp \{-\frac{x}{\lambda}\} dx \\
+  \mathbb{E}[X] = \underset{t \rightarrow \infty}{\lim} -x \cdot \exp\{ -\frac{x}{\lambda} \} \vert_0 ^ t + \int\limits_{0} ^ {t} \exp \{-\frac{x}{\lambda}\} dt \\
+  \mathbb{E}[X] = \underset{t \rightarrow \infty}{\lim} \int\limits_{0} ^ {t} \exp \{-\frac{x}{\lambda}\} dt \\
+  \mathbb{E}[X] = \lambda
+\end{align*}
 
 ***
 
@@ -185,29 +189,88 @@ Expectation with Constants
 - $\mathbb{E}[aX + b] = \mathbb{E}[aX] + \mathbb{E}[b]$
 - $\mathbb{E}[aX + b] = a \mathbb{E}[X] + b$
 
+Moments
+========================================================
+
+- More generally, distributions can be described by various expectations (moments)
+- For integers $k$, the $k$th moment of a random variable $X$ is
+$$\mu^{'}_k = \mathbb{E}[X ^ k]$$
+- The $k$th centered moment is
+$$\mu_k = \mathbb{E}[(X - \mu) ^ k] \text{ where } \mu = \mu ^ {'} = \mathbb{E}[X]$$
+
 Variance
 ========================================================
 
-- As useful as the first moment can be, we are often interested in the second moment
+- As useful as the first moment can be, we are often interested in the second centered moment
 - Let $X$ be a continuous random variable
 - Let $p_X(x)$ be the pdf of X with support in $\mathcal{X}$
 - The second moment of X:
 $$\mathbb{E}[X ^ 2] = \int\limits_{x \in \mathcal{X}} x ^ 2 \cdot p_X(x) dx$$
 - Let $\mathbb{V}[X]$ be the variance of $X$:
-$$\mathbb{V}[X] = \mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2$$
+$$\mathbb{V}[X] = \mathbb{E}[(X - \mu) ^ 2]$$
+- Conveniently,
+$$\mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2$$
 
-***
+Variance: Uniform Distribution
+========================================================
 
 - From the last example
 - $X \in [0, \theta]$
 - $p_X(x) = \theta ^ {-1}$
-- $\mathbb{E}[X ^ 2] = \int\limits_{x \in \mathcal{X}} x ^ 2 \cdot p_X(x) dx$
-- $\mathbb{E}[X ^ 2] = \int\limits_{0} ^ {\theta} x ^ 2 \cdot \theta ^ {-1} dx$
-- $\mathbb{E}[X ^ 2] = x ^ 3 \cdot (3 \theta) ^ {-1} \vert_0 ^ \theta$
-- $\mathbb{E}[X ^ 2] = \frac{\theta ^ 2}{3}$
-- $\mathbb{V}[X] = \mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2$
-- $\mathbb{V}[X] = \frac{\theta ^ 2}{3} - \frac{\theta}{2} ^ 2$
-- $\mathbb{V}[X] = \frac{\theta ^ 2}{12}$
+\begin{align*}
+  \mathbb{E}[X ^ 2] &= \int\limits_{x \in \mathcal{X}} x ^ 2 \cdot p_X(x) dx \\
+                    &= \int\limits_{0} ^ {\theta} x ^ 2 \cdot \theta ^ {-1} dx \\
+                    &= x ^ 3 \cdot (3 \theta) ^ {-1} \vert_0 ^ \theta \\
+                    &= \frac{\theta ^ 2}{3}
+\end{align*}
+
+***
+\begin{align*}
+  \mathbb{V}[X]     &= \mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2 \\
+                    &= \frac{\theta ^ 2}{3} - \frac{\theta ^ 2}{4} \\
+  \mathbb{V}[X]     &= \frac{\theta ^ 2}{12}
+\end{align*}
+
+***
+
+- Let $\theta = 10$
+- $\mathbb{V}[X] = \frac{\theta ^ 2}{12} = 8 \frac{1}{3}$
+
+```{r}
+n = 10000L
+theta = 10L
+x = numeric(n)
+for (i in seq(1L, n, by = 1L)) {
+  draw = runif(n = 1L, min = 0L, theta)
+  x[i] = draw
+}
+var_ = sum((x - mean(x)) ^ 2) / (n - 1)
+```
+
+- Empirically, $\widehat{V}[X] = `r sprintf("%.4f", var_)`$
+
+Variance: Exponential Distribution
+========================================================
+
+- $X \in \mathbb{R} ^ +$
+- $p_X(x) = \frac{1}{\lambda} exp \{-\frac{x}{\lambda}\}, \lambda > 0$
+- $\mathbb{E}[X] = \lambda$
+\begin{align*}
+  \mathbb{E}[X ^ 2] &= \int\limits_{x \in \mathcal{X}} x ^ 2 \cdot p_X(x) dx \\
+                    &= \underset{t \rightarrow \infty}{\lim} \int\limits_{0} ^ {t}
+x ^ 2 \cdot \frac{1}{\lambda} exp \{-\frac{x}{\lambda}\} dx \\
+                    &= \underset{t \rightarrow \infty}{\lim} -\exp\{ -\frac{x}{\lambda} \} \left( x ^ 2 + 2 \lambda x + 2 \lambda ^ 2 \right) \vert_0 ^ t \\
+                    &= 2 \lambda ^ 2
+\end{align*}
+
+***
+
+\begin{align*}
+  \mathbb{V}[X] &= \mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2 \\
+                &= 2 \lambda ^ 2 - \lambda ^ 2 \\
+                &= \lambda ^ 2
+\end{align*}
+                
 
 Moments of Functions
 ========================================================
