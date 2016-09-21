@@ -1,0 +1,380 @@
+---
+title: "STAT-731 Recitation 3"
+author: "K. Tyler Wilcox"
+date: "September 21, 2016"
+output:
+  beamer_presentation:
+    highlight: zenburn
+    incremental: true
+    theme: "metropolis"
+---
+
+Overview
+========================================================
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+- Expected Value
+- Variance
+- Expectation of Functions
+- Monte Carlo Approximation
+
+Expected Value: Discrete Random Variables
+========================================================
+
+- Let $X$ be a discrete random variable
+- Let $p_X(x)$ be the pmf of X with support in $\mathcal{X}$
+- The expected value (theoretical average) of X:
+$$\mathbb{E}[X] = \sum\limits_{x \in \mathcal{X}} x \cdot p_X(x)$$
+
+Expected Value: A Six-Sided Die
+========================================================
+
+- What would we roll on average from a six-sided fair die?
+- $\mathcal{X} = \{ 1, 2, 3, 4, 5, 6 \}$
+- $p_X(x) = \frac{1}{6}, x \in \mathcal{X}$
+- $\mathbb{E}[X] = \sum\limits_{x \in \mathcal{X}} x \cdot p_X(x)$
+- $\mathbb{E}[X] = (1)(\frac{1}{6}) + (2)(\frac{1}{6}) + (3)(\frac{1}{6}) + (4)(\frac{1}{6}) + (5)(\frac{1}{6}) + (6)(\frac{1}{6})$
+- $\mathbb{E}[X] = 3.5$
+
+***
+
+```{r}
+set.seed(9212016L)
+n = 10000L
+x = 1L:6L
+total = 0L
+for (i in seq(1L, n, by = 1L)) {
+  draw = sample(x, size = 1L, replace = TRUE,
+                prob = rep(1.0 / 6.0, times = 6L))[1]
+  total = total + draw
+}
+avg = total / n
+```
+
+- Empirically, $\bar{X} = \widehat{\mathbb{E}[X]} = `r sprintf("%.4f", avg)`$
+
+Expected Value: Continuous Random Variables
+========================================================
+
+- Let $X$ be a continuous random variable
+- Let $p_X(x)$ be the pdf of X with support in $\mathcal{X}$
+- The expected value (theoretical average) of X:
+$$\mathbb{E}[X] = \int\limits_{x \in \mathcal{X}} x \cdot p_X(x) dx$$
+
+Expected Value: Uniform Distribution
+========================================================
+
+- $X \in [0, \theta]$
+- $p_X(x) = \theta ^ {-1}$
+
+\begin{align*}
+  \mathbb{E}[X] &= \int\limits_{x \in \mathcal{X}} x \cdot p_X(x) dx \\
+  \mathbb{E}[X] &= \int\limits_{0} ^ {\theta} x \cdot \theta ^ {-1} dx \\
+  \mathbb{E}[X] &= x ^ 2 \cdot (2 \theta) ^ {-1} \vert_0 ^ \theta \\
+  \mathbb{E}[X] &= \frac{\theta}{2}
+\end{align*}
+
+***
+
+- Let $\theta = 10$
+- $\mathbb{E}[X] = \frac{\theta}{2} = 5$
+
+```{r}
+n = 10000L
+theta = 10L
+total = 0L
+for (i in seq(1L, n, by = 1L)) {
+  draw = runif(n = 1L, min = 0L, max = theta)
+  total = total + draw
+}
+avg = total / n
+```
+
+- Empirically, $\bar{X} = \widehat{\mathbb{E}[X]} = `r sprintf("%.4f", avg)`$
+
+Expected Value: Exponential Distribution
+========================================================
+
+- $X \in \mathbb{R} ^ +$
+- $p_X(x) = \frac{1}{\lambda} exp \{-\frac{x}{\lambda}\}, \lambda > 0$
+\begin{align*}
+  \mathbb{E}[X] = \int\limits_{x \in \mathcal{X}} x \cdot p_X(x) dx \\
+  \mathbb{E}[X] = \underset{t \rightarrow \infty}{\lim} \int\limits_{0} ^ {t}
+x \cdot \frac{1}{\lambda} exp \{-\frac{x}{\lambda}\} dx \\
+  \mathbb{E}[X] = \underset{t \rightarrow \infty}{\lim} -x \cdot \exp\{ -\frac{x}{\lambda} \} \vert_0 ^ t + \int\limits_{0} ^ {t} \exp \{-\frac{x}{\lambda}\} dt \\
+  \mathbb{E}[X] = \underset{t \rightarrow \infty}{\lim} \int\limits_{0} ^ {t} \exp \{-\frac{x}{\lambda}\} dt \\
+  \mathbb{E}[X] = \lambda
+\end{align*}
+
+***
+
+- Let $\lambda = 10$
+- $\mathbb{E}[X] = \lambda = 10$
+
+```{r}
+n = 10000L
+lambda = 10.0
+total = 0L
+for (i in seq(1L, n, by = 1L)) {
+  draw = rexp(n = 1L, rate = 1.0 / lambda)
+  total = total + draw
+}
+avg = total / n
+```
+
+- Empirically, $\bar{X} = \widehat{\mathbb{E}[X]} = `r sprintf("%.4f", avg)`$
+
+Expected Value: Cauchy Distribution
+========================================================
+
+- $X \in \mathbb{R}$
+- $p_X(x) = \frac{1}{\pi} \cdot \frac{1}{1 + x ^ 2}$
+- $\mathbb{E}[X] = \int\limits_{x \in \mathcal{X}} x \cdot p_X(x) dx$
+- With some abuse of notation:
+\begin{align*}
+  \mathbb{E}[X] &= \int\limits_{-\infty} ^ {\infty} x \cdot \frac{1}{\pi} \cdot \frac{1}{1 + x ^ 2} dx \\
+                &= \int\limits_{-\infty} ^ {\infty} |x| \cdot \frac{1}{\pi} \cdot \frac{1}{1 + x ^ 2} dx
+\end{align*}
+
+***
+
+\begin{align*}
+  \mathbb{E}[|X|] &= \int\limits_{0} ^ {\infty} \frac{2}{\pi} \cdot \frac{x}{1 + x ^ 2} dx \\
+                  &= \int\limits_{1} ^ {\infty} \frac{1}{\pi} \cdot \frac{1}{u} du \\
+                  &= \int\limits_{0} ^ {\infty} \frac{1}{\pi} \cdot \log\{1 + x ^ 2\} dx \\
+                  &= \infty \\
+  \mathbb{E}[X]   &= \text{DNE}
+\end{align*}
+
+***
+
+```{r}
+n = 10000L
+total = 0L
+reps = 100L
+avg = numeric(reps)
+for (r in seq(1L, reps, by = 1L)) {
+  for (i in seq(1L, n, by = 1L)) {
+    draw = rcauchy(n = 1L)
+    total = total + draw
+  }
+  avg[r] = total / n
+}
+```
+
+***
+
+```{r, echo = FALSE, message = FALSE, fig.cap = "Expected Value of Cauchy(0, 1)", fig.height = 6}
+library(pacman)
+p_load(tidyverse, scales)
+x = tibble(r = 1:reps, mean = avg)
+x %>%
+  ggplot() +
+  geom_line(aes(r, mean)) +
+  scale_x_continuous(name = "Replications") +
+  scale_y_continuous(name = "Empirical Expected Value") +
+  theme_minimal()
+```
+
+- Empirically, $\bar{X} = \widehat{\mathbb{E}[X]} = `r sprintf("%.4f", mean(avg))`$
+
+Expectation with Constants
+========================================================
+
+- Let $a, b \in \mathbb{R}$
+- $\mathbb{E}[aX + b] = \mathbb{E}[aX] + \mathbb{E}[b]$
+- $\mathbb{E}[aX + b] = a \mathbb{E}[X] + b$
+
+Moments
+========================================================
+
+- More generally, distributions can be described by various expectations (moments)
+- For integers $k$, the $k$th moment of a random variable $X$ is
+$$\mu^{'}_k = \mathbb{E}[X ^ k]$$
+- The $k$th centered moment is
+$$\mu_k = \mathbb{E}[(X - \mu) ^ k] \text{ where } \mu = \mu ^ {'} = \mathbb{E}[X]$$
+
+Variance
+========================================================
+
+- As useful as the first moment can be, we are often interested in the second centered moment
+- Let $X$ be a continuous random variable
+- Let $p_X(x)$ be the pdf of X with support in $\mathcal{X}$
+- The second moment of X:
+$$\mathbb{E}[X ^ 2] = \int\limits_{x \in \mathcal{X}} x ^ 2 \cdot p_X(x) dx$$
+- Let $\mathbb{V}[X]$ be the variance of $X$:
+$$\mathbb{V}[X] = \mathbb{E}[(X - \mu) ^ 2]$$
+- Conveniently,
+$$\mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2$$
+
+Variance: Uniform Distribution
+========================================================
+
+- From the last example
+- $X \in [0, \theta]$
+- $p_X(x) = \theta ^ {-1}$
+\begin{align*}
+  \mathbb{E}[X ^ 2] &= \int\limits_{x \in \mathcal{X}} x ^ 2 \cdot p_X(x) dx \\
+                    &= \int\limits_{0} ^ {\theta} x ^ 2 \cdot \theta ^ {-1} dx \\
+                    &= x ^ 3 \cdot (3 \theta) ^ {-1} \vert_0 ^ \theta \\
+                    &= \frac{\theta ^ 2}{3}
+\end{align*}
+
+***
+\begin{align*}
+  \mathbb{V}[X]     &= \mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2 \\
+                    &= \frac{\theta ^ 2}{3} - \frac{\theta ^ 2}{4} \\
+  \mathbb{V}[X]     &= \frac{\theta ^ 2}{12}
+\end{align*}
+
+***
+
+- Let $\theta = 10$
+- $\mathbb{V}[X] = \frac{\theta ^ 2}{12} = 8 \frac{1}{3}$
+
+```{r}
+n = 10000L
+theta = 10L
+x = numeric(n)
+for (i in seq(1L, n, by = 1L)) {
+  draw = runif(n = 1L, min = 0L, theta)
+  x[i] = draw
+}
+var_ = sum((x - mean(x)) ^ 2) / (n - 1)
+```
+
+- Empirically, $\widehat{V}[X] = `r sprintf("%.4f", var_)`$
+
+Variance: Exponential Distribution
+========================================================
+
+- $X \in \mathbb{R} ^ +$
+- $p_X(x) = \frac{1}{\lambda} exp \{-\frac{x}{\lambda}\}, \lambda > 0$
+- $\mathbb{E}[X] = \lambda$
+\begin{align*}
+  \mathbb{E}[X ^ 2] &= \int\limits_{x \in \mathcal{X}} x ^ 2 \cdot p_X(x) dx \\
+                    &= \underset{t \rightarrow \infty}{\lim} \int\limits_{0} ^ {t}
+x ^ 2 \cdot \frac{1}{\lambda} exp \{-\frac{x}{\lambda}\} dx \\
+                    &= \underset{t \rightarrow \infty}{\lim} -\exp\{ -\frac{x}{\lambda} \} \left( x ^ 2 + 2 \lambda x + 2 \lambda ^ 2 \right) \vert_0 ^ t \\
+                    &= 2 \lambda ^ 2
+\end{align*}
+
+***
+
+\begin{align*}
+  \mathbb{V}[X] &= \mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2 \\
+                &= 2 \lambda ^ 2 - \lambda ^ 2 \\
+                &= \lambda ^ 2
+\end{align*}
+
+***
+
+- Let $\lambda = 10$
+- $\mathbb{V}[X] = \lambda = 100$
+
+```{r}
+n = 10000L
+lambda = 10L
+x = numeric(n)
+for (i in seq(1L, n, by = 1L)) {
+  draw = rexp(n = 1L, rate = 1.0 / lambda)
+  x[i] = draw
+}
+var_ = sum((x - mean(x)) ^ 2) / (n - 1)
+```
+
+- Empirically, $\widehat{V}[X] = `r sprintf("%.4f", var_)`$
+
+Moments of Functions
+========================================================
+
+- We took the expectation of a function to obtain $\mathbb{V}[X]$
+- More specifically
+$\mathbb{V}[X] = \mathbb{E}[(X - \mathbb{E}[X]) ^ 2]$
+- $\mathbb{V}[X] = \mathbb{E}[g(X)]$ where $g(X) = (X - \mathbb{E}[X]) ^ 2$
+$$\mathbb{E}[g(X)] = \int\limits_{x \in \mathcal{X}} g(X) \cdot p_X(x) dx$$
+
+Review: Monte Carlo Approximation of Expectation
+========================================================
+
+- Remember approximating probabilities using a pdf?
+- $\mathbb{E}[g(X)] = \int_a ^ b g(x) f(x) dx$
+- $\mathbb{E}[g(X)] = \int_a ^ b g(x) p_X(x) dx$
+- Let $p_X(x) = \frac{1}{b - a}$
+- $X \sim \text{U}(a, b)$
+- Let $g(X) = (b - a) h(x)$
+- $\widehat{\mathbb{E}[X]} = \frac{1}{n} \sum_{i = 1} ^ n g(x_i)$
+
+Monte Carlo Approximation Example
+========================================================
+
+- Let's consider a simple pdf:
+$$f_{XY}(x, y) = \frac{1}{4} xy, 0 < x < 2, 0 < y < 2$$
+- What is $Pr[X > 1]$?
+
+```{r}
+n   = 1000000
+x   = runif(n, 0, 2)
+y   = runif(n, 0, 2)
+fxy = 0.25 * x * y
+gx  = (2 - 0) * (2 - 0) * fxy
+pr1 = sum(gx[which(x > 1)]) / n
+```
+
+- Our empirical estimate of $Pr[X > 1] = `r sprintf("%.4f", pr1)`$
+- Theoretically, $Pr[X > 1] = 0.75$
+
+Median
+========================================================
+
+- While the expected value is one measure of centrality, it is not the only one
+- Let $\tilde{X}$ be the median of $X$
+- $\tilde{X} = F_X ^ {-1} (0.5)$
+
+Median: Uniform Distribution
+========================================================
+
+- $X \in [0, \theta]$
+- $p_X(x) = \theta ^ {-1}$
+
+\begin{align*}
+  \int\limits_{x \in \mathcal{X}} p_X(x) dx       &= 0.5 \\
+  \int_0 ^ {\tilde{X}} \theta ^ {-1} dx           &= 0.5 \\
+  x \cdot \theta ^ {-1} \vert_0 ^ {\tilde{X}}     &= 0.5
+\end{align*}
+$$\tilde{X} = \frac{\theta}{2}$$
+
+***
+
+- Let $\theta = 10$
+- $\tilde{X} = F_X(0.5) = \frac{\theta}{2} = 5$
+
+```{r}
+n = 10000L
+theta = 10L
+x = numeric(n)
+for (i in seq(1L, n, by = 1L)) {
+  draw = runif(n = 1L, min = 0L, theta)
+  x[i] = draw
+}
+med = median(x)
+```
+
+- Empirically, $\tilde{X} = `r sprintf("%.4f", med)`$
+
+Wrapping Up
+========================================================
+
+- Expected Value
+- Variance
+- Expectation of Functions
+- Monte Carlo Approximation
+- Questions?
+- Next Recitation
+    - Simulating Random Variables
+    - Special Discrete Distributions
+    - Weak and Strong Law of Large Numbers
+    - Chebyshev's Theorem
