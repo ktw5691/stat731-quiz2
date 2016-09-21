@@ -28,6 +28,88 @@ Simulating Common Discrete Distributions
 - Very useful way to deeply understand distributions
 - Good way to simulate processes, models, and parameterizations
 
+Example 1
+========================================================
+
+```{r, message = FALSE}
+library(tidyverse)
+set.seed(55909666L)
+
+r   = 5L
+p   = 0.5
+x   = r:(r + 10L)
+px  = dnbinom(x, size = r, prob = p)
+xpx = tibble(x = factor(x), px = px)
+```
+
+***
+
+```{r, fig.height = 4}
+xpx %>%
+  ggplot(aes(x, px)) +
+  geom_point() +
+  theme_minimal() +
+  ggtitle(paste0("X ~ NegativeBinomial(", r, ", ", p, ")"))
+```
+
+Example 2
+========================================================
+
+```{r}
+m = 5L
+p = 1.0 / 20.0
+x = 0L:m
+px = dnbinom(x, size = m, prob = p)
+xpx = tibble(x = factor(x), px = px)
+```
+
+```{r, echo = FALSE, fig.height = 4}
+xpx %>%
+  ggplot(aes(x, px)) +
+  geom_point() +
+  theme_minimal() +
+  ggtitle(paste0("X ~ Binomial(", m, ", ", p, ")"))
+```
+
+Example 3
+========================================================
+
+```{r}
+m      = 20L
+lambda = 1.0
+x      = 0L:m
+px     = dpois(x, lambda)
+xpx    = tibble(x = factor(x), px = px)
+```
+
+```{r, echo = FALSE, fig.height = 4}
+xpx %>%
+  ggplot(aes(x, px)) +
+  geom_point() +
+  theme_minimal() +
+  ggtitle(paste0("X ~ Poisson(", lambda, ")"))
+```
+
+Example 4
+========================================================
+
+```{r}
+s  = 15L
+f  = 10L
+m  = 5L
+x  = 0L:m
+px = dhyper(x, m = s, n = f, k = m)
+xpx = tibble(x = factor(x), px = px)
+```
+
+```{r, echo = FALSE, fig.height = 4}
+xpx %>%
+  ggplot(aes(x, px)) +
+  geom_point() +
+  theme_minimal() +
+  ggtitle(paste0("X ~ Hypergeometric(", s, ", ", f, ", ", m, ")"))
+```
+
 Discrete Random Variables: Bernoulli Distribution
 ========================================================
 
@@ -52,7 +134,7 @@ x     = rbinom(m, n, prob = theta)
 
 ***
 
-```{r, echo = FALSE, message = FALSE, fig.cap = "Bernoulli(3/4) PMF", fig.height = 4.5}
+```{r, echo = FALSE, message = FALSE, fig.cap = "Bernoulli(3/4) PMF", fig.height = 4}
 library(pacman)
 p_load(tidyverse, scales)
 x = tibble(x = x) %>%

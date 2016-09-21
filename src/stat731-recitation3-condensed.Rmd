@@ -169,7 +169,7 @@ for (r in seq(1L, reps, by = 1L)) {
 
 ```{r, echo = FALSE, message = FALSE, fig.cap = "Expected Value of Cauchy(0, 1)", fig.height = 6}
 library(pacman)
-p_load(tidyverse, scales)
+p_load(tidyverse)
 x = tibble(r = 1:reps, mean = avg)
 x %>%
   ggplot() +
