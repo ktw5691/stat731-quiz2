@@ -32,7 +32,7 @@ Example 1
 ========================================================
 
 ```{r, message = FALSE}
-library(tidyverse)
+library(tidyverse); library(scales)
 set.seed(55909666L)
 
 r   = 5L
@@ -49,7 +49,8 @@ xpx %>%
   ggplot(aes(x, px)) +
   geom_point() +
   theme_minimal() +
-  ggtitle(paste0("X ~ NegativeBinomial(", r, ", ", p, ")"))
+  ggtitle(paste0(
+    "X ~ NegativeBinomial(", r, ", ", p, ")"))
 ```
 
 Example 2
@@ -122,21 +123,22 @@ Simulating from the Bernoulli Distribution
 ========================================================
 
 - Let $\theta = \frac{3}{4}$
+- $\mathbb{E}[X] = \theta = \frac{3}{4}$
 - Generate $m = 100$ empirical replications from Ber($\theta$)
 
 ```{r}
-set.seed(9192016L)
 m     = 100L
 n     = 1L
 theta = 0.75
 x     = rbinom(m, n, prob = theta)
+avg = mean(x)
 ```
+
+- Empirical mean $\bar{X} = `r sprintf("%.4f", avg)`$
 
 ***
 
-```{r, echo = FALSE, message = FALSE, fig.cap = "Bernoulli(3/4) PMF", fig.height = 4}
-library(pacman)
-p_load(tidyverse, scales)
+```{r, echo = FALSE, message = FALSE, fig.height = 4}
 x = tibble(x = x) %>%
   mutate(x = factor(x))
 x %>%
@@ -144,20 +146,24 @@ x %>%
   geom_bar(aes(x, ..count.. / sum(..count..))) +
   scale_y_continuous(name = "Relative Frequency", labels = percent,
                      limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
-  ggtitle("Empirical Probability of X = 1") +
-  theme_minimal()
+  theme_minimal() +
+  ggtitle(paste0("X ~ Bernoulli(", theta, ")"))
 ```
 
 ***
 
 - Let $\theta = \frac{1}{3}$
+- $\mathbb{E}[X] = \theta = \frac{1}{3}$
 
 ```{r}
 theta = 1.0 / 3.0
-x = rbinom(m, n, prob = theta)
+x     = rbinom(m, n, prob = theta)
+avg   = mean(x)
 ```
 
-```{r, echo = FALSE, message = FALSE, fig.cap = "Bernoulli(1/3) PMF", fig.height = 4.5}
+- Empirical mean $\bar{X} = `r sprintf("%.4f", avg)`$
+
+```{r, echo = FALSE, message = FALSE, fig.height = 4}
 x = tibble(x = x) %>%
   mutate(x = factor(x))
 x %>%
@@ -165,7 +171,7 @@ x %>%
   geom_bar(aes(x, ..count.. / sum(..count..))) +
   scale_y_continuous(name = "Relative Frequency", labels = percent,
                      limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
-  ggtitle("Empirical Probability of X = 1") +
+  ggtitle(paste0("X ~ Bernoulli(", round(theta, 2), ")")) +
   theme_minimal()
 ```
 
@@ -173,29 +179,59 @@ Discrete Random Variables: Binomial Distribution
 ========================================================
 
 - Consider $n$ iid Bernoulli random variables $X_1, \ldots, X_n$
-- The probability mass function of $X_1, \ldots, X_n$ is:
+- Let $Y = \sum_{i = 1} ^ n X_i \sim \text{Binomial}(n, \theta)$
+- The probability mass function of $Y$ is:
 $$f_X(x) = {n \choose x} \theta ^ {x} (1 - \theta) ^ {n - x}, x \ge 0, \theta > 0$$
+- $\mathbb{E}[X] = n \theta$
 - Very common distribution with many applications
 
-Simulating the Binomial Distribution
+Simulating the Binomial as Sum of Bernoulli RVs
 ========================================================
 
-- Let $\theta = \frac{1}{3}$
-- Generate $m = 1000$ empirical replications from Bin($n = 3, \theta$)
+- $\theta = 0.25$
+- $\mathbb{E}[X] = n \theta = 1.25$
+
+```{r}
+n    = 1000L
+m    = 5L
+theta    = 0.25
+x    = apply(matrix(rbinom(m * n, size = 1L,
+                           prob = theta), ncol = n),
+             2, sum)
+xbar = mean(x)
+```
+
+- Empirical $\bar{X} = `r sprintf("%.4f", xbar)`$
+
+***
+
+```{r, echo = FALSE, fig.height = 4}
+x = tibble(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+  ggtitle(paste0("X ~ Binomial(", m, ", ", round(theta, 2), ")")) +
+  theme_minimal()
+```
+
+Simulating the Binomial Distribution Directly
+========================================================
+
+- Let $\theta = 0.25$
+- Generate $m = 1000$ empirical replications from Bin($n = 5, \theta$)
 
 ```{r}
 m     = 1000L
-n     = 3L
-theta = 1.0 / 3.0
+n     = 5L
+theta = 0.25
 x = rbinom(m, n, prob = theta)
 ```
 
 ***
 
-- $n = 3$
-- Positively skewed
-
-```{r, echo = FALSE, message = FALSE, fig.cap = "Binomial(n = 3, 1/3) PMF", fig.height = 4.5}
+```{r, echo = FALSE, fig.height = 5}
 x = tibble(x = x) %>%
   mutate(x = factor(x))
 x %>%
@@ -266,6 +302,47 @@ theta = 1.0 / 3.0
 x = rbinom(m, n, prob = theta)
 x = tibble(x = x) %>%
   mutate(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+  ggtitle("Empirical Probability of X") +
+  theme_minimal()
+```
+
+Geometric Distribution
+========================================================
+
+- Let $X$ be the number of failed attempts before success occurs
+- $\mathcal{X} = \{0, 1, ..., \infty\}$
+- The geometric probability mass function:
+$$f_X(x) = Pr[X = x] = \theta (1 - \theta) ^ x, x \ge 0, \theta > 0$$
+- The geometric cumulative distribution function:
+$$F_X(x) = 1 - (1 - \theta) ^ {k + 1}, x \ge 0, \theta > 0$$
+- **Note:** in `R`, the geometric distribution `rgeom` has support for $X \in [0, \infty)$
+- $\mathbb{E}[X] = \frac{1 - \theta}{\theta}$
+
+***
+
+- Consider $X \sim \text{Geom}(\theta)$ where $\theta = 0.4$
+- $\mathbb{E}[X] = \frac{1 - \theta}{\theta} = 1.5$
+
+```{r}
+# Note that in R the support of the geometric distribution starts at 0
+n     = 1000L
+theta = 0.4
+x     = rgeom(n, prob = theta)
+expx  = (1.0 - theta) / theta
+xbar  = mean(x)
+```
+
+-Empirical $\bar{X} = `r sprintf("%.4f", xbar)`$
+
+***
+
+```{r, echo = FALSE, fig.height = 4}
+x = tibble(x = factor(x))
 x %>%
   ggplot() +
   geom_bar(aes(x, ..count.. / sum(..count..))) +
