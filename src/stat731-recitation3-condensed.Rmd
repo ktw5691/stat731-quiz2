@@ -169,7 +169,7 @@ for (r in seq(1L, reps, by = 1L)) {
 
 ```{r, echo = FALSE, message = FALSE, fig.cap = "Expected Value of Cauchy(0, 1)", fig.height = 6}
 library(pacman)
-p_load(tidyverse)
+p_load(tidyverse, scales)
 x = tibble(r = 1:reps, mean = avg)
 x %>%
   ggplot() +
@@ -208,7 +208,7 @@ $$\mathbb{E}[X ^ 2] = \int\limits_{x \in \mathcal{X}} x ^ 2 \cdot p_X(x) dx$$
 - Let $\mathbb{V}[X]$ be the variance of $X$:
 $$\mathbb{V}[X] = \mathbb{E}[(X - \mu) ^ 2]$$
 - Conveniently,
-$$\mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2$$
+$$\mathbb{V}[X] = \mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2$$
 
 Variance: Uniform Distribution
 ========================================================
