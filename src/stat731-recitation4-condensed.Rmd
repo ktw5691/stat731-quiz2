@@ -37,39 +37,39 @@ set.seed(55909666L)
 
 r   = 5L
 p   = 0.5
-x   = r:(r + 10L)
+x   = 0L:(r + 10L)
 px  = dnbinom(x, size = r, prob = p)
 xpx = tibble(x = factor(x), px = px)
 ```
 
 ***
 
-```{r, fig.height = 4}
+```{r, fig.height = 4, fig.cap = "$X \\sim \\text{NegBin}(n = 5, p = 0.5)$"}
 xpx %>%
   ggplot(aes(x, px)) +
   geom_point() +
-  theme_minimal() +
-  ggtitle(paste0(
-    "X ~ NegativeBinomial(", r, ", ", p, ")"))
+  theme_minimal()
 ```
 
 Example 2
 ========================================================
 
 ```{r}
-m = 5L
-p = 1.0 / 20.0
-x = 0L:m
-px = dnbinom(x, size = m, prob = p)
+m   = 5L
+p   = 1.0 / 20.0
+x   = 0L:(m + 100L)
+px  = dnbinom(x, size = m, prob = p)
 xpx = tibble(x = factor(x), px = px)
 ```
 
-```{r, echo = FALSE, fig.height = 4}
+***
+
+```{r, echo = FALSE, fig.height = 6, fig.cap = "$X \\sim \\text{NegBin}(n = 5, \\theta = \\frac{1}{20})$"}
 xpx %>%
   ggplot(aes(x, px)) +
   geom_point() +
-  theme_minimal() +
-  ggtitle(paste0("X ~ Binomial(", m, ", ", p, ")"))
+  scale_x_discrete(breaks = seq(0L, 100L, by = 10L)) +
+  theme_minimal()
 ```
 
 Example 3
@@ -83,32 +83,34 @@ px     = dpois(x, lambda)
 xpx    = tibble(x = factor(x), px = px)
 ```
 
-```{r, echo = FALSE, fig.height = 4}
+***
+
+```{r, echo = FALSE, fig.height = 6, fig.cap = "$X \\sim \\text{Pois}(\\lambda = 1)$"}
 xpx %>%
   ggplot(aes(x, px)) +
   geom_point() +
-  theme_minimal() +
-  ggtitle(paste0("X ~ Poisson(", lambda, ")"))
+  theme_minimal()
 ```
 
 Example 4
 ========================================================
 
 ```{r}
-s  = 15L
-f  = 10L
-m  = 5L
-x  = 0L:m
-px = dhyper(x, m = s, n = f, k = m)
+s   = 15L
+f   = 10L
+m   = 5L
+x   = 0L:m
+px  = dhyper(x, m = s, n = f, k = m)
 xpx = tibble(x = factor(x), px = px)
 ```
 
-```{r, echo = FALSE, fig.height = 4}
+***
+
+```{r, echo = FALSE, fig.height = 6, fig.cap = "$X \\sim \\text{Hypergeo}(S = 15, F = 10, n = 5)$"}
 xpx %>%
   ggplot(aes(x, px)) +
   geom_point() +
-  theme_minimal() +
-  ggtitle(paste0("X ~ Hypergeometric(", s, ", ", f, ", ", m, ")"))
+  theme_minimal()
 ```
 
 Discrete Random Variables: Bernoulli Distribution
@@ -131,14 +133,14 @@ m     = 100L
 n     = 1L
 theta = 0.75
 x     = rbinom(m, n, prob = theta)
-avg = mean(x)
+avg   = mean(x)
 ```
 
 - Empirical mean $\bar{X} = `r sprintf("%.4f", avg)`$
 
 ***
 
-```{r, echo = FALSE, message = FALSE, fig.height = 4}
+```{r, echo = FALSE, message = FALSE, fig.height = 4, fig.cap = "Empirical draws from $X \\sim \\text{Ber}(\\theta = 0.75)$"}
 x = tibble(x = x) %>%
   mutate(x = factor(x))
 x %>%
@@ -146,8 +148,7 @@ x %>%
   geom_bar(aes(x, ..count.. / sum(..count..))) +
   scale_y_continuous(name = "Relative Frequency", labels = percent,
                      limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
-  theme_minimal() +
-  ggtitle(paste0("X ~ Bernoulli(", theta, ")"))
+  theme_minimal()
 ```
 
 ***
@@ -161,9 +162,11 @@ x     = rbinom(m, n, prob = theta)
 avg   = mean(x)
 ```
 
+***
+
 - Empirical mean $\bar{X} = `r sprintf("%.4f", avg)`$
 
-```{r, echo = FALSE, message = FALSE, fig.height = 4}
+```{r, echo = FALSE, message = FALSE, fig.height = 6, fig.cap = "Empirical draws from $X \\sim \\text{Ber}(\\theta = \\frac{1}{3})$"}
 x = tibble(x = x) %>%
   mutate(x = factor(x))
 x %>%
@@ -171,7 +174,6 @@ x %>%
   geom_bar(aes(x, ..count.. / sum(..count..))) +
   scale_y_continuous(name = "Relative Frequency", labels = percent,
                      limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
-  ggtitle(paste0("X ~ Bernoulli(", round(theta, 2), ")")) +
   theme_minimal()
 ```
 
@@ -192,12 +194,12 @@ Simulating the Binomial as Sum of Bernoulli RVs
 - $\mathbb{E}[X] = n \theta = 1.25$
 
 ```{r}
-n    = 1000L
-m    = 5L
-theta    = 0.25
-x    = apply(matrix(rbinom(m * n, size = 1L,
-                           prob = theta), ncol = n),
-             2, sum)
+m     = 1000L
+n     = 5L
+theta = 0.25
+x = apply(matrix(rbinom(m * n, size = 1L,
+                        prob = theta),
+                 ncol = m), 2, sum)
 xbar = mean(x)
 ```
 
@@ -205,14 +207,13 @@ xbar = mean(x)
 
 ***
 
-```{r, echo = FALSE, fig.height = 4}
+```{r, echo = FALSE, fig.height = 4, fig.cap = "Empirical approximation of $X \\sim \\text{Bin}(n = 5, \\theta = 0.25)$ using draws from $X \\sim \\text{Ber}(\\theta = 0.25)$"}
 x = tibble(x = factor(x))
 x %>%
   ggplot() +
   geom_bar(aes(x, ..count.. / sum(..count..))) +
   scale_y_continuous(name = "Relative Frequency", labels = percent,
                      limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
-  ggtitle(paste0("X ~ Binomial(", m, ", ", round(theta, 2), ")")) +
   theme_minimal()
 ```
 
@@ -226,12 +227,14 @@ Simulating the Binomial Distribution Directly
 m     = 1000L
 n     = 5L
 theta = 0.25
-x = rbinom(m, n, prob = theta)
+x     = rbinom(m, n, prob = theta)
 ```
 
 ***
 
-```{r, echo = FALSE, fig.height = 5}
+- Empirical $\bar{X} = `r sprintf("%.4f", mean(x))`$
+
+```{r, echo = FALSE, fig.height = 5, fig.cap = "Empirical draws from $X \\sim \\text{Bin}(n = 5, \\theta = 0.25)$"}
 x = tibble(x = x) %>%
   mutate(x = factor(x))
 x %>%
@@ -256,7 +259,7 @@ $$\text{Bin}\left( n, \theta \right) \stackrel{n}{\rightarrow} \text{N}\left(n \
 - $n = 5$
 - Positively skewed
 
-```{r, echo = FALSE, message = FALSE, fig.cap = "Binomial(n = 5, 1/3) PMF", fig.height = 4.5}
+```{r, echo = FALSE, message = FALSE, fig.cap = "$X \\sim \\text{Bin}(n = 5, \\theta = \\frac{1}{3})$ PMF", fig.height = 4.5}
 n     = 5L
 theta = 1.0 / 3.0
 x = rbinom(m, n, prob = theta)
@@ -266,17 +269,17 @@ x %>%
   ggplot() +
   geom_bar(aes(x, ..count.. / sum(..count..))) +
   scale_y_continuous(name = "Relative Frequency", labels = percent,
-                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+                     limits = c(0.0, 0.5), breaks = seq(0.0, 0.5, 0.1)) +
   ggtitle("Empirical Probability of X") +
   theme_minimal()
 ```
 
 ***
 
-- More symmetric
-- Still skewed
+- $n = 10$
+- More symmetric, still skewed
 
-```{r, echo = FALSE, message = FALSE, fig.cap = "Binomial(n = 5, 1/3) PMF", fig.height = 4.5}
+```{r, echo = FALSE, message = FALSE, fig.cap = "$X \\sim \\text{Bin}(n = 10, \\theta = \\frac{1}{3})$ PMF", fig.height = 4.5}
 n     = 10L
 theta = 1.0 / 3.0
 x = rbinom(m, n, prob = theta)
@@ -286,7 +289,7 @@ x %>%
   ggplot() +
   geom_bar(aes(x, ..count.. / sum(..count..))) +
   scale_y_continuous(name = "Relative Frequency", labels = percent,
-                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+                     limits = c(0.0, 0.5), breaks = seq(0.0, 0.5, 0.1)) +
   ggtitle("Empirical Probability of X") +
   theme_minimal()
 ```
@@ -296,7 +299,7 @@ x %>%
 - $n = 30$
 - Symmetric, approaching Gaussian distribution
 
-```{r, echo = FALSE, message = FALSE, fig.cap = "Binomial(n = 5, 1/3) PMF", fig.height = 4.5}
+```{r, echo = FALSE, message = FALSE, fig.cap = "$X \\sim \\text{Bin}(n = 30, \\frac{1}{3})$ PMF", fig.height = 4.5}
 n     = 30L
 theta = 1.0 / 3.0
 x = rbinom(m, n, prob = theta)
@@ -306,7 +309,27 @@ x %>%
   ggplot() +
   geom_bar(aes(x, ..count.. / sum(..count..))) +
   scale_y_continuous(name = "Relative Frequency", labels = percent,
-                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+                     limits = c(0.0, 0.5), breaks = seq(0.0, 0.5, 0.1)) +
+  ggtitle("Empirical Probability of X") +
+  theme_minimal()
+```
+
+***
+
+- $n = 100$
+- Symmetric, approaching Gaussian distribution
+
+```{r, echo = FALSE, message = FALSE, fig.cap = "$X \\sim \\text{Bin}(n = 100, \\frac{1}{3})$ PMF", fig.height = 4.5}
+n     = 100L
+theta = 1.0 / 3.0
+x = rbinom(m, n, prob = theta)
+x = tibble(x = x) %>%
+  mutate(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 0.5), breaks = seq(0.0, 0.5, 0.1)) +
   ggtitle("Empirical Probability of X") +
   theme_minimal()
 ```
@@ -329,7 +352,6 @@ $$F_X(x) = 1 - (1 - \theta) ^ {k + 1}, x \ge 0, \theta > 0$$
 - $\mathbb{E}[X] = \frac{1 - \theta}{\theta} = 1.5$
 
 ```{r}
-# Note that in R the support of the geometric distribution starts at 0
 n     = 1000L
 theta = 0.4
 x     = rgeom(n, prob = theta)
@@ -337,7 +359,35 @@ expx  = (1.0 - theta) / theta
 xbar  = mean(x)
 ```
 
--Empirical $\bar{X} = `r sprintf("%.4f", xbar)`$
+- Empirical $\bar{X} = `r sprintf("%.4f", xbar)`$
+
+***
+
+```{r, echo = FALSE, fig.height = 4}
+x = tibble(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 1.0), breaks = seq(0.0, 1.0, 0.1)) +
+  ggtitle("Empirical Probability of X") +
+  theme_minimal()
+```
+
+***
+
+- Consider $X \sim \text{Geom}(\theta)$ where $\theta = 0.8$
+- $\mathbb{E}[X] = \frac{1 - \theta}{\theta} = 0.25$
+
+```{r}
+n     = 1000L
+theta = 0.8
+x     = rgeom(n, prob = theta)
+expx  = (1.0 - theta) / theta
+xbar  = mean(x)
+```
+
+- Empirical $\bar{X} = `r sprintf("%.4f", xbar)`$
 
 ***
 
