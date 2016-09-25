@@ -299,7 +299,7 @@ x %>%
 - $n = 30$
 - Symmetric, approaching Gaussian distribution
 
-```{r, echo = FALSE, message = FALSE, fig.cap = "$X \\sim \\text{Bin}(n = 30, \\frac{1}{3})$ PMF", fig.height = 4.5}
+```{r, echo = FALSE, message = FALSE, fig.cap = "$X \\sim \\text{Bin}(n = 30, \\theta = \\frac{1}{3})$ PMF", fig.height = 4.5}
 n     = 30L
 theta = 1.0 / 3.0
 x = rbinom(m, n, prob = theta)
@@ -319,7 +319,7 @@ x %>%
 - $n = 100$
 - Symmetric, approaching Gaussian distribution
 
-```{r, echo = FALSE, message = FALSE, fig.cap = "$X \\sim \\text{Bin}(n = 100, \\frac{1}{3})$ PMF", fig.height = 4.5}
+```{r, echo = FALSE, message = FALSE, fig.cap = "$X \\sim \\text{Bin}(n = 100, \\theta = \\frac{1}{3})$ PMF", fig.height = 4.5}
 n     = 100L
 theta = 1.0 / 3.0
 x = rbinom(m, n, prob = theta)
@@ -337,7 +337,7 @@ x %>%
 Geometric Distribution
 ========================================================
 
-- Let $X$ be the number of failed attempts before success occurs
+- Let $X$ be the number of failures in a sequence of iid Bernoulli trials before a success occurs
 - $\mathcal{X} = \{0, 1, ..., \infty\}$
 - The geometric probability mass function:
 $$f_X(x) = Pr[X = x] = \theta (1 - \theta) ^ x, x \ge 0, \theta > 0$$
@@ -363,7 +363,7 @@ xbar  = mean(x)
 
 ***
 
-```{r, echo = FALSE, fig.height = 4}
+```{r, echo = FALSE, fig.height = 4, fig.cap = "$X \\sim \\text{Geo}(\\theta = 0.4)$"}
 x = tibble(x = factor(x))
 x %>%
   ggplot() +
@@ -391,7 +391,7 @@ xbar  = mean(x)
 
 ***
 
-```{r, echo = FALSE, fig.height = 4}
+```{r, echo = FALSE, fig.height = 4, fig.cap = "$X \\sim \\text{Geo}(\\theta = 0.8)$"}
 x = tibble(x = factor(x))
 x %>%
   ggplot() +
@@ -401,6 +401,135 @@ x %>%
   ggtitle("Empirical Probability of X") +
   theme_minimal()
 ```
+
+Negative Binomial Distribution
+========================================================
+
+- Let $X$ be the number of failures in a sequence of iid Bernoulli trials before the $r$th success occurs
+- $\mathcal{X} = \{0, 1, ..., \infty\}$
+- The negative binomial probability mass function:
+$$f_X(x) = Pr[X = x] = {{x + r - 1} \choose {x}} \theta ^ r (1 - \theta) ^ x, x \ge 0, \theta > 0$$
+- $\mathbb{E}[X] =\frac{r (1 - \theta)}{\theta}$
+
+Negative Binomial Distribution as Sum of IID Geometric Random Variables
+========================================================
+
+- Given $X_1, X_2, \ldots, X_n$ where $X_i \overset{iid}{\sim} F_X(x)$
+- If $Y = \sum\limits_{i = 1}^{n} X_i$ then
+$$M_Y(t) = \prod_{i = 1} ^ n M_{X_i}(t)$$
+
+***
+
+- Let $X_i \overset{iid}{\sim} \text{Geo}(\theta), i = 1, \ldots, r$
+- $M_{X_i}(t) = \frac{\theta}{1 - (1 - \theta) e ^ t}$
+\begin{align*}
+  M_Y(t) &= \prod_{i = 1} ^ {r} M_{X_i}(t) \\
+         &= \prod_{i = 1} ^ {r} \frac{\theta}{1 - (1 - \theta) e ^ t} \\
+  M_Y(t) &= \left( \frac{\theta}{1 - (1 - \theta) e ^ t} \right) ^ r
+\end{align*}
+- $M_Y(t)$ can be recognized as the MGF of the Negative Binomial with $r$ failures
+
+Simulating the Negative Binomial as Sum of Geometric RVs
+========================================================
+
+- $\theta = 0.5$
+- $\mathbb{E}[X] = \frac{r ( 1 - \theta)}{\theta} = 5$
+
+```{r}
+m     = 1000L
+r     = 5L
+theta = 0.5
+x = apply(matrix(rgeom(m * r,
+                       prob = theta),
+                 ncol = m), 2, sum)
+xbar = mean(x)
+```
+
+- Empirical $\bar{X} = `r sprintf("%.4f", xbar)`$
+
+***
+
+```{r, echo = FALSE, fig.height = 4, fig.cap = "Empirical approximation of $X \\sim \\text{NegBin}(r = 5, \\theta = 0.5)$ using draws from $X \\sim \\text{Geo}(\\theta = 0.5)$"}
+x = tibble(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 0.5), breaks = seq(0.0, 0.5, 0.1)) +
+  theme_minimal()
+```
+
+***
+
+- Using the negative binomial directly:
+
+```{r}
+n     = 1000L
+r     = 5L
+theta = 0.5
+x     = rnbinom(n, size = r, prob = theta)
+xbar  = mean(x)
+```
+
+- Empirical $\bar{X} = `r sprintf("%.4f", xbar)`$
+
+***
+
+```{r, echo = FALSE, fig.height = 4, fig.cap = "$X \\sim \\text{NegBin}(r = 5, \\theta = 0.5)$"}
+x = tibble(x = factor(x))
+x %>%
+  ggplot() +
+  geom_bar(aes(x, ..count.. / sum(..count..))) +
+  scale_y_continuous(name = "Relative Frequency", labels = percent,
+                     limits = c(0.0, 0.5), breaks = seq(0.0, 0.5, 0.1)) +
+  ggtitle("Empirical Probability of X") +
+  theme_minimal()
+```
+
+Arbitrary Discrete Distribution
+========================================================
+
+- Suppose $X \in {x_1, x_2, x_3, \ldots, x_k}$
+- $P_X(x) \in {p(x_1), p(x_2), p(x_3), \ldots, p(x_k)}$
+- Let $\mathcal{X} = {-2, -1, 0, 3, 4}$
+- Let $P_X(x) = {0.125, 0.25, 0.25, 0.25, 0.125}$
+- $\mathbb{E}[X] = 0.75$
+- $\mathbb{E}[X ^ 2] = 5$
+- $\mathbb{V}[X] = \mathbb{E}[X ^ 2] - \mathbb{E}[X] ^ 2 = 4.4375$
+
+***
+
+```{r}
+xpx = tibble(
+  x  = c(-2, -1, 0, 3, 4),
+  px = c(0.125, 0.25, 0.25, 0.25, 0.125))
+```
+
+```{r, echo = FALSE, fig.cap = "An arbitrary PMF for $X \\sim F_X(x)$", fig.height = 4.5}
+xpx %>%
+  ggplot() +
+  geom_point(aes(x, px)) +
+  scale_x_continuous(breaks = -2L:4L, labels = -2L:4L) +
+  scale_y_continuous(name = "Pr[X = x]", limits = c(0.0, 0.3),
+                     breaks = seq(0.0, 0.3, 0.05)) +
+  theme_minimal()
+```
+
+***
+
+- Simulate $n$ random variates from $F_X(x)$
+
+```{r}
+n = 100000L
+d = sample(xpx$x, size = n, replace = TRUE, prob = xpx$px)
+
+# Empirical (sample) average
+xbar = mean(d)
+varx = var(d)
+```
+
+- $\bar{X} = `r sprintf("%.4f", xbar)`$
+- $s ^ 2 = `r sprintf("%.4f", varx)`$
 
 Wrapping Up
 ========================================================
