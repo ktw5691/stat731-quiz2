@@ -161,7 +161,7 @@ cat('\nX ~ Bin(', m, ',', p, '): The Theoretical Mean is E[X]= ', ex,
 ux = unique(x)
 px = prop.table(table(x))
 plot(ux, px, xlab = 'x', type = 'h', ylab = 'Pr[X = x]',
-     xlim=c(-1L, 1L + max(x)), ylim = c(0.0, 1.02 * max(px)), lwd = 2L,
+     xlim = c(-1L, 1L + max(x)), ylim = c(0.0, 1.02 * max(px)), lwd = 2L,
      col = 'blue', main = paste0('X ~ Bin(', m, ',', p, ')'))
 points(ux, px, pch = 9L, cex = 1L, col = 'red')
 
@@ -299,7 +299,7 @@ lambda = 3.0
 mu = 0.0
 sigma = 1.0
 
-for(i in 1L:n) {
+for (i in 1L:n) {
   ind = rbinom(1L, 1L, prob = alpha)
   x1 = rpois(1L, lambda)
   x2 = rnorm(1L, mean = mu, sd = sigma)
