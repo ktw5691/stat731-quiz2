@@ -24,7 +24,7 @@ x = 0L:m
 px = dnbinom(x, size = m, prob = p)
 plot(x, px, type = 'h', xlim = c(-1L, m), ylim = c(0.0, 1.01 * max(px)),
      lwd = 2L, col = "blue", ylab = "p",
-     main = paste0('X ~ Binomial(', m, ',', p, ')'))
+     main = paste0('X ~ NegBin(', m, ',', p, ')'))
 points(x, px, pch = 9L, cex = 2L, col = "dark red")
 
 # Plot discrete mass functions
@@ -114,7 +114,7 @@ plot(ux, px, xlab = 'x', type = 'h', ylab = 'Pr[X = x]',
 points(ux, px, pch = 9L, cex = 1L, col = 'red')
 
 # The Negative Binomial distribution
-# This distribution is verily a child of the geometric distribution for. Indeed,
+# This distribution is verily a child of the geometric distribution for indeed,
 # a realized negative binomial variate is a sum of geometric variates
 
 n = 1000L
