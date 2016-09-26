@@ -18,8 +18,8 @@ Overview
 
 - Simulating Random Variables
 - Special Discrete Distributions
-- Law of Large Numbers
 - Chebyshev's Theorem
+- Law of Large Numbers
 
 Simulating Common Discrete Distributions
 ========================================================
@@ -521,9 +521,10 @@ xpx %>%
 
 ```{r}
 n = 100000L
-d = sample(xpx$x, size = n, replace = TRUE, prob = xpx$px)
+d = sample(xpx$x, size = n, replace = TRUE,
+           prob = xpx$px)
 
-# Empirical (sample) average
+# Empirical (sample) average/variance
 xbar = mean(d)
 varx = var(d)
 ```
@@ -531,11 +532,163 @@ varx = var(d)
 - $\bar{X} = `r sprintf("%.4f", xbar)`$
 - $s ^ 2 = `r sprintf("%.4f", varx)`$
 
+Chebyshev's Inequality
+========================================================
+
+- Let $X$ be a random variable
+- Let $g(X)$ be a non-negative function, i.e., $g(X) > 0$
+- Then
+$$Pr[g(X) \ge r] \le \frac{\mathbb{E}[g(X)]}{r}$$
+- More commonly, we let $g(X) = \frac{(x - \mu) ^ 2}{\sigma ^ 2}$ and $r = t ^ 2$
+\begin{align*}
+  Pr[g(X) \ge r]                                              &\le
+    \frac{\mathbb{E}[g(X)]}{r} \\
+  Pr\left[ \frac{(x - \mu) ^ 2}{\sigma ^ 2} \ge t ^ 2 \right] &\le
+    \frac{1}{t ^ 2} \mathbb{E}\left[ \frac{(x - \mu) ^ 2}{\sigma ^ 2} \right] =
+    \frac{1}{t ^ 2} \\
+  Pr\left[ |X - \mu| \le t \sigma \right] &\le \frac{1}{t ^ 2} \\
+  Pr\left[ |X - \mu| < t \sigma \right] &\ge 1 - \frac{1}{t ^ 2}
+\end{align*}
+
+Example: Chebyshev's Inequality
+========================================================
+
+- We can now bound the distance between $X$ and $\mu$, $|X - \mu|$ in terms of $\sigma$ regardless of the distribution of $X$
+- Let $t = 2$
+- $Pr\left[ |X - \mu| < t \sigma \right] \ge 1 - \frac{1}{t ^ 2}$
+- $Pr\left[ |X - \mu| < 2 \sigma \right] \ge 1 - \frac{1}{4}$
+- $Pr\left[ |X - \mu| < 2 \sigma \right] \ge 0.75$
+- Random variable $X$ has at least a 75% chance of being within 2 standard
+deviations of its mean
+- Unfortunately, it's very conservative (sometimes not helpful)
+- What is the bound if $t = 1$? $t = 0.5$?
+
+Poisson Distribution
+========================================================
+
+- Let $X$ be the number of events in an interval
+- $\mathcal{X} = \{0, 1, ..., \infty\}$
+- The Poisson probability mass function:
+$$f_X(x) = Pr[X = x] = \frac{\lambda ^ k \exp\{ -\lambda \}}{k!}, x \ge 0, \lambda > 0$$
+- $\mathbb{E}[X] = \lambda$
+- $\mathbb{V}[X] = \lambda$
+
+Chebyshev's Inequality for Poisson Distribution
+========================================================
+
+```{r}
+n      = 10000L
+lambda = 1.0
+t      = 2.0
+x      = rpois(n, lambda)
+prob   = length(which(
+  abs(x - lambda) < t * sqrt(lambda))) / n
+```
+
+- Chebyshev's Inequality: $Pr\left[ |X - 1| < 2 \right] \ge 0.75$
+- Empirically, $Pr\left[ |X - 1| < 2 \right] \dot{=} `r sprintf("%.4f", prob)`$
+- Note that the empirical probability of $X$ being within 2 standard deviations of the mean when $X \sim \text{Pois}(\lambda = 1)$ is greater than the lower bound given by Chebyshev's Inequality
+
+Chebyshev's Inequality for Geometric Distribution
+========================================================
+
+```{r}
+n  = 10000L
+p  = 0.25
+t  = 2.0
+ex = (1.0 - p) / p
+vx = (1.0 - p) / (p * p)
+x  = rgeom(n, p)
+prob = length(which(
+  abs(x - ex) < t * sqrt(vx))) / n
+```
+
+- Chebyshev's Inequality: $Pr\left[ |X - 3| < 6.93 \right] \ge 0.75$
+- Empirically, $Pr\left[ |X - 3| < 6.93 \right] \dot{=} `r sprintf("%.4f", prob)`$
+
+Chebyshev's Inequality for Normal Distribution
+========================================================
+
+```{r}
+n     = 10000L
+ex    = 9.0
+sigma = 2.0
+vx    = sigma * sigma
+t     = 1.96
+x     = rnorm(n, mean = ex, sd = sigma)
+prob  = length(which(
+  abs(x - ex) < t * sigma)) / n
+```
+
+- Chebyshev's Inequality: $Pr\left[ |X - 9| < 3.92 \right] \ge 0.7397$
+- Empirically, $Pr\left[ |X - 9| < 3.92 \right] \dot{=} `r sprintf("%.4f", prob)`$
+- Clearly, for certain distributions, we can find better probabilistic bounds
+
+Weak Law of Large Numbers
+========================================================
+
+- Let $X_1, X_2, \ldots, X_n$ be iid random variables
+- Let $\mathbb{E}[X_i] = \mu$
+- $\mathbb{V}[X_i] = \sigma ^ 2 < \infty$
+- Define $\bar{X}_n = \frac{1}{n}\sum\limits_{i = 1} ^ n X_i$
+- Then $\forall \epsilon > 0$
+$$lim_{n \rightarrow \infty} Pr[|\bar{X}_n - \mu| < \epsilon] = 1$$
+- $\bar{X}_n$ converges *in probability* to $\mu$
+- We can also show that the sample variance $S^2_n$ converges in probability to $\sigma ^ 2$ (Quiz Question)
+
+Strong Law of Large Numbers
+========================================================
+
+- Let $X_1, X_2, \ldots, X_n$ be iid random variables
+- Let $\mathbb{E}[X_i] = \mu$
+- $\mathbb{V}[X_i] = \sigma ^ 2 < \infty$
+- Define $\bar{X}_n = \frac{1}{n}\sum\limits_{i = 1} ^ n X_i$
+- Then $\forall \epsilon > 0$
+$$Pr[lim_{n \rightarrow \infty} |\bar{X}_n - \mu| < \epsilon] = 1$$
+- $\bar{X}_n$ converges almost surely to $\mu$
+
+LLN Example
+========================================================
+
+- Draw $n$ random variates from $X \sim \text{Pois}(\lambda = 3)$
+
+```{r}
+m       = 100L
+epsilon = 0.01
+vn      = c(100L, 500L, 1600L, 3200L,
+            6400L, 9600L, 18000L,
+            25600L, 54000L, 108000L,
+            256000L, 819200L)
+nn      = length(vn)
+pgood   = numeric(nn)
+mu      = lambda = 3.0
+```
+
+***
+
+```{r}
+for (j in 1L:nn) {
+  n  = vn[j]
+  xx = matrix(rpois(n * m, mu),
+              ncol = n)
+  xbar = apply(xx, 1L, mean)
+  good = which(abs(xbar - mu) < epsilon)
+  pgood[j] = length(good) / m
+}
+```
+
+***
+
+```{r, fig.cap = "Empirical Demonstration of the Law of Large Numbers for $X \\sim \\text{Pois}(\\lambda = 3)$", fig.height = 5}
+plot(vn, pgood, type = 'b', xlab = 'n',
+     ylab = 'Prob[|Xbar - mu| < epsilon]')
+```
+
 Wrapping Up
 ========================================================
 
-- Probability Mass Functions
-- Probability Density Functions
-- Cumulative Distribution Functions
-- Approximation with Monte Carlo
+- Simulating Random Variables
+- Special Discrete Distributions
+- Chebyshev's Theorem
+- Law of Large Numbers
 - Questions?

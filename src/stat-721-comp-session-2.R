@@ -240,7 +240,7 @@ proba = length(which(abs(x - ex) < nu * sqrt(vx))) / n
 cat('\nChebyshev holds true here as', proba, 'is >', 1.0 - (1.0 / (nu * nu)),
     '\n')
 
-# Computational demonstration of the LLN (Law of Large Numbers
+# Computational demonstration of the LLN (Law of Large Numbers)
 # This first demonstration uses the normal distribution. However the LLN applies
 # to all possible distributions
 
