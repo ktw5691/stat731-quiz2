@@ -546,7 +546,7 @@ $$Pr[g(X) \ge r] \le \frac{\mathbb{E}[g(X)]}{r}$$
   Pr\left[ \frac{(x - \mu) ^ 2}{\sigma ^ 2} \ge t ^ 2 \right] &\le
     \frac{1}{t ^ 2} \mathbb{E}\left[ \frac{(x - \mu) ^ 2}{\sigma ^ 2} \right] =
     \frac{1}{t ^ 2} \\
-  Pr\left[ |X - \mu| \le t \sigma \right] &\le \frac{1}{t ^ 2} \\
+  Pr\left[ |X - \mu| \ge t \sigma \right] &\le \frac{1}{t ^ 2} \\
   Pr\left[ |X - \mu| < t \sigma \right] &\ge 1 - \frac{1}{t ^ 2}
 \end{align*}
 
